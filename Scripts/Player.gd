@@ -5,13 +5,17 @@ class_name Player
 var x_input: int = 0
 var jump_input: int = 0
 var melee_input: int = 0
+var ability_input: int = 0
 
 #General
 var velocity: Vector2 = Vector2.ZERO
 export var sprite_path: NodePath
 onready var sprite: Sprite = get_node(sprite_path)
+export var body_sprite_path: NodePath
+onready var body_sprite: Sprite = get_node(body_sprite_path)
 export var sword_path: NodePath
 onready var sword: Area2D = get_node(sword_path)
+var rng = RandomNumberGenerator.new()
 
 #Movement
 export var move_speed: float
@@ -39,17 +43,33 @@ export var anim_player_path: NodePath
 onready var anim_player: AnimationPlayer = get_node(anim_player_path)
 export var sword_anim_player_path: NodePath
 onready var sword_anim_player: AnimationPlayer = get_node(sword_anim_player_path)
+var state: int = 0
+enum State {IDLE, WALK, JUMP, LAND, FALL}
 
 #Look
-var looking_right: bool = true
+var looking_right: int = 1
 
 #Melee
 export var melee_speed: float
 var can_melee: bool = true
 
+#Ability
+var current_roll: int = 5
+#1
+#2
+#3
+#4
+#5
+export var bomb_scene: PackedScene
+export var throw_direction: Vector2
+export var bomb_cooldown: float
+var can_throw_bomb: bool = true
+#6
 
-#func _ready() -> void:
-#	sword_anim_player.play("Hold")
+
+func _ready() -> void:
+	sword_anim_player.play("Hold")
+	rng.randomize()
 	
 
 func _physics_process(delta: float) -> void:
@@ -57,12 +77,73 @@ func _physics_process(delta: float) -> void:
 	move(delta)
 	look()
 	sword()
+	ability()
 	animations()
 
 
 func animations() -> void:
-	#Idle, Fall, Land
-	pass
+	if velocity.y < 0:
+		state = State.JUMP
+	elif velocity.y > 0.2:
+		state = State.FALL
+	elif abs(velocity.x) > 0.1:
+		state = State.WALK
+	elif velocity.x < 0.1 && state == State.FALL && is_on_floor():
+		state = State.LAND
+	else:
+		state = State.IDLE
+		
+	match state:
+		State.JUMP:
+			anim_player.play("Jump")
+		State.FALL:
+			anim_player.play("Fall")
+		State.WALK:
+			anim_player.play("Walk")
+		State.IDLE:
+			if anim_player.current_animation == "Walk":
+				anim_player.play("Idle")
+			else:
+				anim_player.queue("Idle")
+		State.LAND:
+			anim_player.play("Land")
+			
+	body_sprite.frame = current_roll - 1
+
+
+func ability() -> void:
+	if ability_input:
+		match current_roll:
+			1:
+				print("1")
+			2:
+				print("2")
+			3:
+				print("3")
+			4:
+				print("4")
+			5:
+				if can_throw_bomb:
+					can_throw_bomb = false
+					throw_bomb()
+					yield(get_tree().create_timer(bomb_cooldown), "timeout")
+					can_throw_bomb = true
+			6:
+				print("6")
+
+
+func throw_bomb() -> void:
+	var bomb: RigidBody2D = bomb_scene.instance()
+	get_parent().add_child(bomb)
+	var direction = Vector2(throw_direction.x * looking_right, throw_direction.y)
+	bomb.global_position = self.position + direction
+	var bomb_velocity: Vector2 = bomb.throw_speed * direction + velocity * 0.5
+	bomb.linear_velocity = bomb_velocity
+		
+			
+func kill(body: Node) -> void:
+	body.die()
+	current_roll = rng.randi_range(1,6)
 
 
 func sword() -> void:
@@ -77,9 +158,11 @@ func sword() -> void:
 
 func look() -> void:
 	if velocity.x >= 0:
+		looking_right = 1
 		sprite.flip_h = false
 		sword.scale.x = 1
 	else:
+		looking_right = -1
 		sprite.flip_h = true
 		sword.scale.x = -1
 
@@ -148,6 +231,7 @@ func input() -> void:
 	x_input = 0
 	jump_input = 0
 	melee_input = 0
+	ability_input = 0
 	
 	#Horizontal
 	if Input.is_action_pressed("right"):
@@ -160,9 +244,11 @@ func input() -> void:
 	#Melee
 	if Input.is_action_pressed("melee"):
 		melee_input = 1
+	#Ability
+	if Input.is_action_pressed("ability"):
+		ability_input = 1
 
 
 func _on_Sword_body_entered(body: Node) -> void:
 	if body.is_in_group("Enemy"):
-		#body.damage() NEED TO IMPLEMENT
-		print("enemy")
+		kill(body)
