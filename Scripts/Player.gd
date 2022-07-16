@@ -4,12 +4,14 @@ class_name Player
 #Input
 var x_input: int = 0
 var jump_input: int = 0
+var melee_input: int = 0
 
 #General
 var velocity: Vector2 = Vector2.ZERO
-var looking_right: bool = true
 export var sprite_path: NodePath
 onready var sprite: Sprite = get_node(sprite_path)
+export var sword_path: NodePath
+onready var sword: Area2D = get_node(sword_path)
 
 #Movement
 export var move_speed: float
@@ -32,18 +34,54 @@ var coyote_time_length: float = 0.15
 var jump_was_pressed: bool = false
 var remember_jump_length: float = 0.1
 
+#Animation
+export var anim_player_path: NodePath
+onready var anim_player: AnimationPlayer = get_node(anim_player_path)
+export var sword_anim_player_path: NodePath
+onready var sword_anim_player: AnimationPlayer = get_node(sword_anim_player_path)
+
+#Look
+var looking_right: bool = true
+
+#Melee
+export var melee_speed: float
+var can_melee: bool = true
+
+
+#func _ready() -> void:
+#	sword_anim_player.play("Hold")
+	
 
 func _physics_process(delta: float) -> void:
 	input()
 	move(delta)
 	look()
+	sword()
+	animations()
 
+
+func animations() -> void:
+	#Idle, Fall, Land
+	pass
+
+
+func sword() -> void:
+	if melee_input && can_melee:
+		can_melee = false
+		sword_anim_player.stop()
+		sword_anim_player.play("Swing")
+		sword_anim_player.queue("Hold")
+		yield(get_tree().create_timer(melee_speed), "timeout")
+		can_melee = true
+	
 
 func look() -> void:
 	if velocity.x >= 0:
-		sprite.scale.x = 2
+		sprite.flip_h = false
+		sword.scale.x = 1
 	else:
-		sprite.scale.x = -2
+		sprite.flip_h = true
+		sword.scale.x = -1
 
 
 func move(delta: float) -> void:
@@ -109,6 +147,7 @@ func input() -> void:
 	#Resets variables
 	x_input = 0
 	jump_input = 0
+	melee_input = 0
 	
 	#Horizontal
 	if Input.is_action_pressed("right"):
@@ -118,3 +157,12 @@ func input() -> void:
 	#Jump
 	if Input.is_action_just_pressed("jump"):
 		jump_input = 1
+	#Melee
+	if Input.is_action_pressed("melee"):
+		melee_input = 1
+
+
+func _on_Sword_body_entered(body: Node) -> void:
+	if body.is_in_group("Enemy"):
+		#body.damage() NEED TO IMPLEMENT
+		print("enemy")
