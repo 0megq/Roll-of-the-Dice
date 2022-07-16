@@ -80,6 +80,7 @@ ability={
 2d_physics/layer_1="Ground"
 2d_physics/layer_2="Enemy"
 2d_physics/layer_3="Bomb"
+2d_physics/layer_4="Player"
 
 [physics]
 

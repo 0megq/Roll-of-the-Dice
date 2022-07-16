@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=2]
 
-[ext_resource path="res://Scenes/Bomb.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/Bomb.gd" type="Script" id=1]
 [ext_resource path="res://Art/BombSpriteSheet.png" type="Texture" id=2]
 
 [sub_resource type="RectangleShape2D" id=7]
@@ -175,11 +175,11 @@ atlas = ExtResource( 2 )
 region = Rect2( 67, 5, 1, 2 )
 
 [sub_resource type="CircleShape2D" id=8]
-radius = 29.0
+radius = 48.0
 
 [node name="Bomb" type="RigidBody2D"]
 collision_layer = 4
-collision_mask = 7
+collision_mask = 5
 mode = 2
 gravity_scale = 7.0
 script = ExtResource( 1 )

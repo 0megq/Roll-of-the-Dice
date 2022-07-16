@@ -78,10 +78,10 @@ func _physics_process(delta: float) -> void:
 	look()
 	sword()
 	ability()
-	animations()
+	animate()
 
 
-func animations() -> void:
+func animate() -> void:
 	if velocity.y < 0:
 		state = State.JUMP
 	elif velocity.y > 0.2:
@@ -161,10 +161,12 @@ func look() -> void:
 		looking_right = 1
 		sprite.flip_h = false
 		sword.scale.x = 1
+		sword.position.x = 0
 	else:
 		looking_right = -1
 		sprite.flip_h = true
 		sword.scale.x = -1
+		sword.position.x = -2
 
 
 func move(delta: float) -> void:
@@ -202,6 +204,10 @@ func move(delta: float) -> void:
 		apply_gravity(delta)
 	
 	move_and_slide(velocity, Vector2.UP)
+
+
+func damage() -> void:
+	print("ow")
 
 
 func apply_gravity(delta: float) -> void:

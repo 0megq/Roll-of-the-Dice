@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://Scripts/Enemy.gd" type="Script" id=1]
 [ext_resource path="res://Art/EnemySpriteSheet-Sheet.png" type="Texture" id=2]
+[ext_resource path="res://Scenes/EnemySword.tscn" type="PackedScene" id=3]
 
 [sub_resource type="RectangleShape2D" id=2]
 extents = Vector2( 7, 12 )
@@ -10,6 +11,7 @@ extents = Vector2( 7, 12 )
 resource_name = "Idle"
 length = 0.5
 loop = true
+step = 0.05
 tracks/0/type = "value"
 tracks/0/path = NodePath("Sprite:frame_coords")
 tracks/0/interp = 1
@@ -22,10 +24,71 @@ tracks/0/keys = {
 "update": 1,
 "values": [ Vector2( 1, 0 ), Vector2( 2, 0 ) ]
 }
+tracks/1/type = "value"
+tracks/1/path = NodePath("Sword/SwordSprite:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.25 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ Vector2( 1, 0 ), Vector2( 1, -2 ) ]
+}
+
+[sub_resource type="Animation" id=4]
+resource_name = "Walk"
+length = 0.8
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.2, 0.4, 0.6 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 3, 4, 5, 6 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Sword/SwordSprite:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.2, 0.4, 0.6 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( 1, 0 ), Vector2( 1, -2 ), Vector2( 1, 0 ), Vector2( 1, -2 ) ]
+}
+
+[sub_resource type="CircleShape2D" id=3]
+radius = 108.005
+
+[sub_resource type="RectangleShape2D" id=5]
+extents = Vector2( 20, 10 )
 
 [node name="Enemy" type="KinematicBody2D" groups=["Enemy"]]
 collision_layer = 2
+collision_mask = 5
 script = ExtResource( 1 )
+jump_cast_path = NodePath("RayCast2D")
+sword_path = NodePath("Sword")
+move_speed = 70.0
+move_acc = 15.0
+idle_deacc = 0.3
+jump_height = 24.0
+jump_duration = 0.2
+fall_duration = 0.15
+max_fall = 400.0
+anim_player_path = NodePath("AnimationPlayer")
+sword_anim_player_path = NodePath("Sword/AnimationPlayer")
+melee_speed = 0.4
+melee_reaction = 0.4
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource( 2 )
@@ -37,7 +100,41 @@ texture = ExtResource( 2 )
 offset = Vector2( 5, -2 )
 hframes = 7
 vframes = 5
-frame = 2
+frame = 1
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 anims/Idle = SubResource( 1 )
+anims/Walk = SubResource( 4 )
+
+[node name="DetectionRadius" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionRadius"]
+shape = SubResource( 3 )
+
+[node name="Sword" parent="." instance=ExtResource( 3 )]
+
+[node name="CollisionShape2D" parent="Sword" index="0"]
+position = Vector2( 9, 13 )
+
+[node name="SwordDetection" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SwordDetection"]
+shape = SubResource( 5 )
+
+[node name="RayCast2D" type="RayCast2D" parent="."]
+position = Vector2( 0, 7 )
+rotation = -1.5708
+enabled = true
+cast_to = Vector2( 0, 12 )
+
+[connection signal="body_entered" from="DetectionRadius" to="." method="_on_DetectionRadius_body_entered"]
+[connection signal="body_exited" from="DetectionRadius" to="." method="_on_DetectionRadius_body_exited"]
+[connection signal="body_entered" from="Sword" to="." method="_on_Sword_body_entered"]
+[connection signal="body_entered" from="SwordDetection" to="." method="_on_SwordDetection_body_entered"]
+[connection signal="body_exited" from="SwordDetection" to="." method="_on_SwordDetection_body_exited"]
+
+[editable path="Sword"]
