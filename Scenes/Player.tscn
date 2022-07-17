@@ -1,13 +1,85 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://Art/PlayerSpriteSheet.png" type="Texture" id=1]
 [ext_resource path="res://Scripts/Player.gd" type="Script" id=2]
 [ext_resource path="res://Scenes/Sword.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Art/PlayerBodySpriteSheet.png" type="Texture" id=4]
 [ext_resource path="res://Scenes/Bomb.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Scenes/ThrowingSword.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Scenes/Arrow.tscn" type="PackedScene" id=7]
+[ext_resource path="res://Scenes/Bullet.tscn" type="PackedScene" id=8]
+[ext_resource path="res://Art/WhitePixel.png" type="Texture" id=9]
+[ext_resource path="res://Scenes/HUD.tscn" type="PackedScene" id=10]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 5, 14 )
+
+[sub_resource type="Animation" id=9]
+resource_name = "Dash"
+length = 0.3
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("PlayerSprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.05, 0.15, 0.3 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 9, 10, 11, 12 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Sword/SwordSprite:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.05, 0.3 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( -8, 6 ), Vector2( -8, 4 ), Vector2( -8, 6 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("BodySprite:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.05, 0.3 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( 0, 0 ), Vector2( 0, -2 ), Vector2( 0, 0 ) ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("DashHitBox/CollisionShape2D:disabled")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.3 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ false, true ]
+}
+tracks/4/type = "method"
+tracks/4/path = NodePath(".")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0.3 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [ false ],
+"method": "set_dashing"
+} ]
+}
 
 [sub_resource type="Animation" id=6]
 resource_name = "Fall"
@@ -229,6 +301,9 @@ tracks/2/keys = {
 "values": [ Vector2( -8, 6 ), Vector2( -8, 4 ), Vector2( -8, 6 ) ]
 }
 
+[sub_resource type="RectangleShape2D" id=10]
+extents = Vector2( 5, 14 )
+
 [node name="Player" type="KinematicBody2D" groups=["Player"]]
 collision_layer = 8
 script = ExtResource( 2 )
@@ -244,10 +319,25 @@ fall_duration = 0.3
 max_fall = 400.0
 anim_player_path = NodePath("AnimationPlayer")
 sword_anim_player_path = NodePath("Sword/AnimationPlayer")
-melee_speed = 0.2
+melee_speed = 0.6
+arrow_scene = ExtResource( 7 )
+arrow_throw_direction = Vector2( 1, -0.3 )
+arrow_cooldown = 0.3
+extra_jumps = 1
+dash_force = 900.0
+dash_cooldown = 0.7
+dash_deacc = 0.1
+bullet_scene = ExtResource( 8 )
+bullet_cooldown = 1.0
+bullet_count = 3
+bullet_spread = 15.0
 bomb_scene = ExtResource( 5 )
-throw_direction = Vector2( 1, -1 )
+bomb_throw_direction = Vector2( 1, -1 )
 bomb_cooldown = 1.0
+tsword_scene = ExtResource( 6 )
+tsword_throw_direction = Vector2( 1, -0.3 )
+tsword_cooldown = 1.0
+hud_path = NodePath("HUD")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2( -1, 0 )
@@ -257,7 +347,7 @@ shape = SubResource( 1 )
 scale = Vector2( 2, 2 )
 texture = ExtResource( 1 )
 hframes = 20
-frame = 16
+frame = 1
 
 [node name="BodySprite" type="Sprite" parent="."]
 scale = Vector2( 2, 2 )
@@ -266,6 +356,7 @@ offset = Vector2( 0, 1 )
 hframes = 6
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/Dash = SubResource( 9 )
 anims/Fall = SubResource( 6 )
 anims/Idle = SubResource( 3 )
 anims/Jump = SubResource( 7 )
@@ -278,15 +369,43 @@ anims/Walk = SubResource( 4 )
 [node name="CollisionShape2D" parent="Sword" index="0"]
 position = Vector2( 7, -15 )
 rotation = 0.349066
-disabled = false
-
-[node name="SwordSprite" parent="Sword" index="1"]
-frame = 0
 
 [node name="Camera2D" type="Camera2D" parent="."]
 rotating = true
 current = true
 
+[node name="DashHitBox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DashHitBox"]
+position = Vector2( -1, 0 )
+shape = SubResource( 10 )
+
+[node name="JumpParticles" type="CPUParticles2D" parent="."]
+position = Vector2( -1, 14 )
+scale = Vector2( 2, 2 )
+emitting = false
+amount = 16
+lifetime = 0.3
+one_shot = true
+explosiveness = 0.8
+randomness = 1.0
+lifetime_randomness = 0.5
+texture = ExtResource( 9 )
+emission_shape = 2
+emission_rect_extents = Vector2( 4, 1 )
+gravity = Vector2( 0, 20 )
+radial_accel = 10.0
+radial_accel_random = 0.2
+
+[node name="HUD" parent="." instance=ExtResource( 10 )]
+margin_left = -160.0
+margin_top = -90.0
+margin_right = -160.0
+margin_bottom = -90.0
+
 [connection signal="body_entered" from="Sword" to="." method="_on_Sword_body_entered"]
+[connection signal="body_entered" from="DashHitBox" to="." method="_on_DashHitBox_body_entered"]
 
 [editable path="Sword"]

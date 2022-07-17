@@ -10,19 +10,29 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "KinematicBody2D",
+"class": "Enemy",
+"language": "GDScript",
+"path": "res://Scripts/Enemy.gd"
+}, {
+"base": "KinematicBody2D",
 "class": "Player",
 "language": "GDScript",
 "path": "res://Scripts/Player.gd"
 } ]
 _global_script_class_icons={
+"Enemy": "",
 "Player": ""
 }
 
 [application]
 
 config/name="Roll of the Dice"
-run/main_scene="res://Scenes/TestScene.tscn"
+run/main_scene="res://Scenes/Main.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+Global="*res://Scenes/Global.tscn"
 
 [display]
 

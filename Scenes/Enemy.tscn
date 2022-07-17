@@ -78,17 +78,17 @@ collision_mask = 5
 script = ExtResource( 1 )
 jump_cast_path = NodePath("RayCast2D")
 sword_path = NodePath("Sword")
-move_speed = 70.0
+move_speed = 90.0
 move_acc = 15.0
 idle_deacc = 0.3
-jump_height = 24.0
+jump_height = 16.0
 jump_duration = 0.2
 fall_duration = 0.15
 max_fall = 400.0
 anim_player_path = NodePath("AnimationPlayer")
 sword_anim_player_path = NodePath("Sword/AnimationPlayer")
 melee_speed = 0.4
-melee_reaction = 0.4
+melee_reaction = 0.2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource( 2 )
@@ -108,7 +108,7 @@ anims/Walk = SubResource( 4 )
 
 [node name="DetectionRadius" type="Area2D" parent="."]
 collision_layer = 0
-collision_mask = 8
+collision_mask = 10
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionRadius"]
 shape = SubResource( 3 )

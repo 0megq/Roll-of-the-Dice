@@ -1,4 +1,5 @@
 extends KinematicBody2D
+class_name Enemy
 
 #Input
 var x_input: int = 0
@@ -79,6 +80,14 @@ func ai() -> void:
 	if jump_cast.is_colliding():
 		jump_input = 1
 	
+	var allies: Array = $DetectionRadius.get_overlapping_bodies()
+	for i in allies:
+		if i.is_in_group("Enemy"):
+			if i.tracking:
+				tracking = true
+		else:
+			tracking = true
+	
 		
 
 func sword() -> void:
@@ -138,6 +147,7 @@ func move(delta: float) -> void:
 			jump()
 	
 	if !is_on_floor():
+		can_jump = false
 		reset_y_vel = true
 		apply_gravity(delta)
 	
@@ -157,7 +167,6 @@ func jump() -> void:
 
 
 func die() -> void:
-	print("enemy killed")
 	queue_free()
 
 
@@ -166,12 +175,9 @@ func _on_Sword_body_entered(body: Node) -> void:
 		body.damage()
 
 
-func _on_DetectionRadius_body_entered(body: Node) -> void:
-	tracking = true
-
-
 func _on_DetectionRadius_body_exited(body: Node) -> void:
-	tracking = false
+	if body.is_in_group("Player"):
+		tracking = false
 
 
 func _on_SwordDetection_body_entered(body: Node) -> void:

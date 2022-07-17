@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://Art/SwordSheet.png" type="Texture" id=1]
 
@@ -6,7 +6,6 @@
 extents = Vector2( 3, 8 )
 
 [sub_resource type="Animation" id=10]
-resource_name = "Hold"
 length = 0.05
 step = 0.01
 tracks/0/type = "value"
@@ -56,6 +55,22 @@ tracks/3/keys = {
 "transitions": PoolRealArray( 1, 1 ),
 "update": 0,
 "values": [ Vector2( -10, 8 ), Vector2( -8, 6 ) ]
+}
+
+[sub_resource type="Animation" id=13]
+resource_name = "Invisible"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("SwordSprite:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
 }
 
 [sub_resource type="Animation" id=11]
@@ -162,13 +177,29 @@ tracks/5/keys = {
 "values": [ Vector2( 2, 0 ), Vector2( 2, 0 ), Vector2( -4, -1 ) ]
 }
 
+[sub_resource type="Animation" id=14]
+resource_name = "Visible"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("SwordSprite:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+
 [node name="Sword" type="Area2D"]
 collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2( 12.8, -3.2 )
-rotation = 1.32645
+position = Vector2( 7, 15 )
+rotation = 2.79253
 shape = SubResource( 9 )
 disabled = true
 
@@ -183,5 +214,7 @@ frame = 1
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 anims/Hold = SubResource( 10 )
+anims/Invisible = SubResource( 13 )
 anims/RESET = SubResource( 11 )
 anims/Swing = SubResource( 12 )
+anims/Visible = SubResource( 14 )
