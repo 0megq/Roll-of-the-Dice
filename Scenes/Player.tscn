@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=25 format=2]
 
 [ext_resource path="res://Art/PlayerSpriteSheet.png" type="Texture" id=1]
 [ext_resource path="res://Scripts/Player.gd" type="Script" id=2]
@@ -10,6 +10,11 @@
 [ext_resource path="res://Scenes/Bullet.tscn" type="PackedScene" id=8]
 [ext_resource path="res://Art/WhitePixel.png" type="Texture" id=9]
 [ext_resource path="res://Scenes/HUD.tscn" type="PackedScene" id=10]
+[ext_resource path="res://Audio/hitHurt.wav" type="AudioStream" id=11]
+[ext_resource path="res://Art/HitEffect.png" type="Texture" id=12]
+[ext_resource path="res://Audio/jump.wav" type="AudioStream" id=13]
+[ext_resource path="res://Audio/death.wav" type="AudioStream" id=14]
+[ext_resource path="res://Audio/laserShoot.wav" type="AudioStream" id=15]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 5, 14 )
@@ -166,7 +171,6 @@ tracks/2/keys = {
 [sub_resource type="Animation" id=7]
 resource_name = "Jump"
 length = 0.35
-step = 0.05
 tracks/0/type = "value"
 tracks/0/path = NodePath("PlayerSprite:frame")
 tracks/0/interp = 1
@@ -347,7 +351,7 @@ shape = SubResource( 1 )
 scale = Vector2( 2, 2 )
 texture = ExtResource( 1 )
 hframes = 20
-frame = 1
+frame = 14
 
 [node name="BodySprite" type="Sprite" parent="."]
 scale = Vector2( 2, 2 )
@@ -404,6 +408,30 @@ margin_left = -160.0
 margin_top = -90.0
 margin_right = -160.0
 margin_bottom = -90.0
+
+[node name="HitSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 11 )
+volume_db = -14.858
+pitch_scale = 0.88
+
+[node name="HitEffect" type="Sprite" parent="."]
+visible = false
+position = Vector2( 1, 0 )
+scale = Vector2( 2, 2 )
+texture = ExtResource( 12 )
+
+[node name="JumpSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 13 )
+volume_db = -28.84
+
+[node name="DeathSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 14 )
+volume_db = 0.874
+pitch_scale = 0.93
+
+[node name="AbilitySound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 15 )
+volume_db = -5.243
 
 [connection signal="body_entered" from="Sword" to="." method="_on_Sword_body_entered"]
 [connection signal="body_entered" from="DashHitBox" to="." method="_on_DashHitBox_body_entered"]

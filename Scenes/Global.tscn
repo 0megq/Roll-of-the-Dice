@@ -1,6 +1,20 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://Global.gd" type="Script" id=1]
+[ext_resource path="res://Scripts/Global.gd" type="Script" id=1]
+[ext_resource path="res://Scenes/Win.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Audio/win.wav" type="AudioStream" id=3]
+[ext_resource path="res://Audio/music.mp3" type="AudioStream" id=4]
 
 [node name="Global" type="Node"]
 script = ExtResource( 1 )
+win_scene = ExtResource( 2 )
+
+[node name="WinSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 3 )
+volume_db = -4.369
+pitch_scale = 1.11
+
+[node name="Music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 4 )
+volume_db = -25.344
+autoplay = true

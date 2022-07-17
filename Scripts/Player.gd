@@ -166,17 +166,20 @@ func ability() -> void:
 		match current_roll:
 			1:
 				if can_throw_arrow:
+					$AbilitySound.play()
 					can_throw_arrow = false
 					throw_arrow()
 					yield(get_tree().create_timer(arrow_cooldown), "timeout")
 					can_throw_arrow = true
 			2:
 				if extra_jump_count && !can_jump:
+					$AbilitySound.play()
 					extra_jump_count -= 1
 					$JumpParticles.emitting = true
 					jump()
 			3:
 				if can_dash && dash_count:
+					$AbilitySound.play()
 					can_dash = false
 					dashing = true
 					dash_count -= 1
@@ -185,6 +188,7 @@ func ability() -> void:
 					can_dash = true
 			4:
 				if can_throw_bullet:
+					$AbilitySound.play()
 					can_throw_bullet = false
 					for i in bullet_count:
 						throw_bullet(i)
@@ -192,12 +196,14 @@ func ability() -> void:
 					can_throw_bullet = true
 			5:
 				if can_throw_bomb:
+					$AbilitySound.play()
 					can_throw_bomb = false
 					throw_bomb()
 					yield(get_tree().create_timer(bomb_cooldown), "timeout")
 					can_throw_bomb = true
 			6:
 				if can_throw_tsword && has_sword:
+					$AbilitySound.play()
 					has_sword = false
 					can_throw_tsword = false
 					throw_tsword()
@@ -326,8 +332,14 @@ func damage() -> void:
 	if !dashing:
 		health -= 1
 		health = clamp(health, 0, 6)
+		$HitSound.play()
 		if health <= 0:
+			$DeathSound.play()
+			yield(get_tree().create_timer(0.3), "timeout")
 			dead()
+		$HitEffect.visible = true
+		yield(get_tree().create_timer(0.1), "timeout")
+		$HitEffect.visible = false
 
 
 func dead() -> void:
@@ -343,6 +355,7 @@ func apply_gravity(delta: float) -> void:
 	
 
 func jump() -> void:
+	$JumpSound.play()
 	velocity.y = jump_velocity
 
 
@@ -401,4 +414,3 @@ func set_dashing(value: bool) -> void:
 func _on_DashHitBox_body_entered(body: Node) -> void:
 	if body.is_in_group("Enemy") && dashing:
 		kill(body)
-		print("Bashed :)")
